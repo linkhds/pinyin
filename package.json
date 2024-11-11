@@ -1,13 +1,18 @@
 {
-  "name": "pinyin-api",
+  "name": "hanzi-to-pinyin",
   "version": "1.0.0",
-  "description": "",
-  "main": "app.js",
+  "description": "Convert Chinese characters to Pinyin",
+  "main": "api/index.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node api/index.js",
+    "dev": "node api/index.js"
   },
   "dependencies": {
     "express": "^4.17.1",
-    "pinyin": "^2.9.1"
+    "pinyin": "^2.10.2",
+    "cors": "^2.8.5"
+  },
+  "engines": {
+    "node": ">=14"
   }
 }
