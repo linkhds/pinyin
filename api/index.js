@@ -4,35 +4,53 @@ const cors = require('cors');
 
 const app = express();
 
-// 启用 CORS
-app.use(cors());
+// 增加详细日志中间件
+app.use((req, res, next) => {
+  console.log(`Request received: ${req.method} ${req.path}`);
+  console.log('Headers:', req.headers);
+  console.log('Body:', req.body);
+  next();
+});
 
-// 处理 JSON 请求
+// 启用 CORS，并配置更宽松的选项
+app.use(cors({
+  origin: '*', // 允许所有域名
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// 解析 JSON 和 URL-encoded 请求体
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // 健康检查endpoint
-app.get('/api', (req, res) => {
-  res.json({ status: 'ok' });
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', message: 'Service is running' });
 });
 
 // 汉字转拼音的主要endpoint
-app.post('/api/convert', (req, res) => {
+app.post('/convert', (req, res) => {
   try {
+    console.log('Convert endpoint called');
+    console.log('Request body:', req.body);
+
     const { text } = req.body;
     
     if (!text) {
+      console.log('Missing text parameter');
       return res.status(400).json({ 
         error: 'Missing text parameter' 
       });
     }
 
     const result = pinyin(text, {
-      style: pinyin.STYLE_TONE, // 启用声调
-      heteronym: false // 禁用多音字
+      style: pinyin.STYLE_TONE,
+      heteronym: false
     });
 
-    // 将二维数组转换为一维数组
     const pinyinArray = result.map(item => item[0]);
+
+    console.log('Conversion result:', pinyinArray);
 
     res.json({
       original: text,
@@ -41,6 +59,7 @@ app.post('/api/convert', (req, res) => {
     });
 
   } catch (error) {
+    console.error('Error in conversion:', error);
     res.status(500).json({ 
       error: 'Internal server error',
       message: error.message 
@@ -48,18 +67,13 @@ app.post('/api/convert', (req, res) => {
   }
 });
 
+// 处理 OPTIONS 请求，支持跨域预检
+app.options('*', cors());
+
 // 处理 404
 app.use((req, res) => {
+  console.log('404 - Not Found:', req.method, req.path);
   res.status(404).json({ error: 'Not found' });
 });
 
-// 对于 Vercel，我们需要导出 app
 module.exports = app;
-
-// 如果直接运行文件，则启动服务器
-if (require.main === module) {
-  const port = process.env.PORT || 3000;
-  app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-  });
-}
