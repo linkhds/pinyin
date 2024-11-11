@@ -1,16 +1,15 @@
 {
   "version": 2,
-  "name": "pinyin-api",
   "builds": [
     {
-      "src": "app.js",
+      "src": "api/index.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
-      "src": "/(.*)",
-      "dest": "app.js"
+      "src": "/api/(.*)",
+      "dest": "/api/index.js"
     }
   ]
 }
