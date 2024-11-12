@@ -1,7 +1,6 @@
 const express = require('express');
 const pinyin = require('pinyin');
 const cors = require('cors');
-
 const app = express();
 
 // 增加详细日志中间件
@@ -33,7 +32,6 @@ app.post('/convert', (req, res) => {
   try {
     console.log('Convert endpoint called');
     console.log('Request body:', req.body);
-
     const { text } = req.body;
     
     if (!text) {
@@ -42,22 +40,17 @@ app.post('/convert', (req, res) => {
         error: 'Missing text parameter' 
       });
     }
-
     const result = pinyin(text, {
       style: pinyin.STYLE_TONE,
       heteronym: false
     });
-
     const pinyinArray = result.map(item => item[0]);
-
     console.log('Conversion result:', pinyinArray);
-
     res.json({
       original: text,
       pinyin: pinyinArray,
       pinyinString: pinyinArray.join(' ')
     });
-
   } catch (error) {
     console.error('Error in conversion:', error);
     res.status(500).json({ 
@@ -76,4 +69,7 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Not found' });
 });
 
-module.exports = app;
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
