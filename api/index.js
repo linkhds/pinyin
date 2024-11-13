@@ -2,37 +2,33 @@ const express = require('express');
 const pinyin = require('pinyin');
 const cors = require('cors');
 const app = express();
-
-// Detailed logging middleware
+// 增加详细日志中间件
 app.use((req, res, next) => {
-  console.log(`Request received: ${req.method} ${req.path}`);
+  console.log(Request received: ${req.method} ${req.path});
   console.log('Headers:', req.headers);
   console.log('Body:', req.body);
   next();
 });
-
-// Enable CORS with more permissive options
+// 启用 CORS，并配置更宽松的选项
 app.use(cors({
-  origin: '*',
+  origin: '*', // 允许所有域名
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-
-// Parse JSON request bodies
+// 解析 JSON 和 URL-encoded 请求体
 app.use(express.json());
-
-// Health check endpoint
+app.use(express.urlencoded({ extended: true }));
+// 健康检查endpoint
 app.get('/', (req, res) => {
   res.json({ status: 'ok', message: 'Service is running' });
 });
-
-// Main Hanzi to Pinyin conversion endpoint
+// 汉字转拼音的主要endpoint
 app.post('/convert', (req, res) => {
   try {
     console.log('Convert endpoint called');
     console.log('Request body:', req.body);
     const { text } = req.body;
-    
+
     if (!text) {
       console.log('Missing text parameter');
       return res.status(400).json({ 
@@ -58,17 +54,14 @@ app.post('/convert', (req, res) => {
     });
   }
 });
-
-// Handle OPTIONS requests for CORS preflight
+// 处理 OPTIONS 请求，支持跨域预检
 app.options('*', cors());
-
-// Handle 404 errors
+// 处理 404
 app.use((req, res) => {
   console.log('404 - Not Found:', req.method, req.path);
   res.status(404).json({ error: 'Not found' });
 });
-
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(Server is running on port ${port});
 });
